@@ -18,7 +18,8 @@ func (s *APIServer) Run() error {
 	v1.Handle("/api/v1/", http.StripPrefix("/api/v1", router))
 
 	// Register user routes
-	userHandler := user.NewHandler()
+	userStore := user.NewStore(s.db)
+	userHandler := user.NewHandler(userStore)
 	userHandler.RegisterRoutes(router)
 
 	log.Println("Listening on", s.addr)

@@ -1,0 +1,29 @@
+# Generate a mysql docker compose file with the following data
+# the default username is root and the password is password
+# the database name is ecom
+# the port is 3306
+# the root password is password
+# the version is 5.7
+# Create a volume mysql-data
+# the environment is MYSQL_ROOT_PASSWORD=password
+# the environment is MYSQL_DATABASE=ecom
+
+version: '3'
+
+services:
+  mysql:
+    image: mysql:8.0.0
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+    user: mysql
+    environment:
+      MYSQL_USER: test
+      MYSQL_PASSWORD: test_pass
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: ecom
+
+
+
