@@ -2,6 +2,7 @@ package user
 
 import (
 	"fmt"
+	"github.com/go-playground/validator/v10"
 	"github.com/nailabx/golangjwt/service/auth"
 	"github.com/nailabx/golangjwt/types"
 	"github.com/nailabx/golangjwt/utils"
@@ -30,13 +31,19 @@ func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 	var payload types.RegisterUserPayload
 
 	if err := utils.ParseJSON(r, &payload); err != nil {
-		utils.WriteError(w, http.StatusBadRequest, err)
+		utils.WriteError(w, http.StatusBadRequest, err) //nolint:errcheck
+		return
+	}
+	//	Validate the payload
+	if err := utils.Validate.Struct(payload); err != nil {
+		errors := err.(validator.ValidationErrors)
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
 		return
 	}
 	//	Check if the user exists
 	_, err := h.store.GetUserByEmail(payload.Email)
 	if err == nil {
-		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("user with email %s already exists", payload.Email))
+		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("user with email %s already exists", payload.Email)) //nolint:errcheck
 		return
 	}
 	//	Create the user
@@ -49,8 +56,8 @@ func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 		Password:  hashedPassword,
 	})
 	if err != nil {
-		utils.WriteError(w, http.StatusInternalServerError, err)
+		utils.WriteError(w, http.StatusInternalServerError, err) //nolint:errcheck
 		return
 	}
-	utils.WriteJSON(w, http.StatusCreated, map[string]string{"message": "user created successfully"})
+	utils.WriteJSON(w, http.StatusCreated, map[string]string{"message": "user created successfully"}) //nolint:errcheck
 }
